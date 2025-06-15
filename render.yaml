@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: youtube-transcriber-api
+    env: docker
+    plan: free
+    autoDeploy: true
+    region: oregon
+    envVars:
+      - key: GOOGLE_CREDENTIALS_BASE64
+        sync: false
+      - key: GCS_BUCKET_NAME
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false

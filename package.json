@@ -1,0 +1,11 @@
+{
+  "name": "yt-cookie-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "clipboardy": "^4.0.0",
+    "puppeteer": "^22.8.2",
+    "puppeteer-core": "^24.10.1",
+    "tough-cookie": "^4.1.3"
+  }
+}
