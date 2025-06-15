@@ -1,4 +1,7 @@
+### app.py (with custom prompt support)
+
 import os
+import openai
 import json
 import base64
 import tempfile
@@ -84,8 +87,8 @@ def transcribe_with_whisper(audio_path):
     return transcript.strip(), detected_lang
 
 def translate_to_english(text, chunk_size=400):
-    print("🌐 Translating to English using HuggingFace model...")
-
+    print("🌐 Translating to English using OpenAI GPT...")
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     chunks = []
     current_chunk = ""
     for sentence in text.split(". "):
@@ -97,13 +100,20 @@ def translate_to_english(text, chunk_size=400):
     if current_chunk:
         chunks.append(current_chunk.strip())
 
-    print(f"🔹 Split into {len(chunks)} chunks for translation.")
-
     translated_chunks = []
     for idx, chunk in enumerate(chunks):
         print(f"🔸 Translating chunk {idx + 1}/{len(chunks)}...")
         try:
-            translated = TRANSLATOR(chunk, max_length=1000)[0]['translation_text']
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You are a translator that converts any language into natural English."},
+                    {"role": "user", "content": f"Translate this to English:\n\n{chunk}"}
+                ],
+                max_tokens=5000,
+                temperature=0.2,
+            )
+            translated = response.choices[0].message.content.strip()
             translated_chunks.append(translated)
         except Exception as e:
             print(f"❌ Error translating chunk {idx + 1}: {e}")
@@ -118,6 +128,8 @@ def translate_to_english(text, chunk_size=400):
 def transcribe():
     data = request.json
     video_url = data.get('url')
+    summary_mode = data.get('summary_mode', 'bullet')
+    custom_prompt = data.get('custom_prompt', None)
 
     if not video_url:
         return jsonify({'error': 'Missing YouTube URL'}), 400
@@ -142,10 +154,8 @@ def transcribe():
             print("✅ Skipping as the transcribed content was already in english.")
             translated = transcript
 
-        print("🔄 Step 6: Summarizing...")
-        bullets = summarize_to_bullets(translate_to_english(transcript))
-        print("✅ Summary preview:")
-        print("\n".join(bullets[:3]))
+        print("🔄 Step 6: Summarizing with mode:", summary_mode)
+        bullets = summarize_to_bullets(translated, mode=summary_mode, custom_prompt=custom_prompt)
 
         return jsonify({
             'transcript': transcript,

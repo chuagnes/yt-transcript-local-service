@@ -35,4 +35,4 @@ node "$SCRIPT_DIR/cookie_generator.mjs"
 echo "✅ Done! Cookie should now be saved in .env"
 
 # Optional tip
-echo "🛑 Close Chrome window started by this screen when done to free the remote debugging port."
+echo "🛑 Close Chrome window started by this screen when done using app to free the remote debugging port."

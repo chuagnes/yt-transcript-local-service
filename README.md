@@ -8,3 +8,7 @@
 
 ## Run app
 ./run.sh
+
+## OpenAI setup
+Please add the below to .env
+OPENAI_API_KEY=<YOUR_API_KEY>
